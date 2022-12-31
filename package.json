@@ -1,0 +1,22 @@
+{
+  "name": "dimdams",
+  "version": "1.0.1",
+  "description": "a simple package for discord.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dimdams/Dimdam-s.git"
+  },
+  "keywords": [
+    "Dimdam's"
+  ],
+  "author": "🄳🄸🄼🄳🄰🄼#3326",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Dimdams/Dimdam-s/issues"
+  },
+  "homepage": "https://dimdams.ddns.net/"
+}
