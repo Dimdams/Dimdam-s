@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/Dimdams/Dimdam-s/issues"
   },
-  "homepage": "https://github.com/Dimdams/Dimdam-s/"
+  "homepage": "https://github.com/Dimdams/Dimdam-s/",
+  "dependencies": {
+    "node-cache": "^5.1.2"
+  }
 }

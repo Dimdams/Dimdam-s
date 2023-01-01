@@ -1,5 +1,7 @@
 const querystring = require("querystring");
 const { request } = require("undici");
+const NodeCache = require("node-cache");
+const cache = new NodeCache({ stdTTL: 86400 });
 
 const languages = require("./languages");
 const tokenGenerator = require("./token");
@@ -23,6 +25,12 @@ async function translate(text, options) {
         }
     });
     if (error) throw error;
+
+    let cacheKey = `${options.from}-${options.to}-${text}`;
+    let cachedResult = cache.get(cacheKey);
+    if (cachedResult) {
+        return cachedResult;
+    }
 
     if (!Object.prototype.hasOwnProperty.call(options, "from")) options.from = "auto";
     if (!Object.prototype.hasOwnProperty.call(options, "to")) options.to = "fr";
@@ -123,6 +131,7 @@ async function translate(text, options) {
         }
     }
 
+    cache.set(cacheKey, result);
     return result;
 }
 
