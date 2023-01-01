@@ -1,6 +1,6 @@
 {
   "name": "dimdams",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "a simple package for discord.js",
   "main": "index.js",
   "scripts": {
