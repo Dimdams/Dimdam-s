@@ -13,7 +13,7 @@ const tokenGenerator = require("./token");
  * @returns {Object}
  */
 async function translate(text, options) {
-    if (typeof options !== "object") options = {};
+    if(typeof options !== "object") options = {};
     text = String(text);
 
     let error;
@@ -24,16 +24,16 @@ async function translate(text, options) {
             error.message = `The language '${lang}' is not supported.`;
         }
     });
-    if (error) throw error;
+    if(error) throw error;
 
     let cacheKey = `${options.from}-${options.to}-${text}`;
     let cachedResult = cache.get(cacheKey);
-    if (cachedResult) {
+    if(cachedResult){
         return cachedResult;
     }
 
-    if (!Object.prototype.hasOwnProperty.call(options, "from")) options.from = "auto";
-    if (!Object.prototype.hasOwnProperty.call(options, "to")) options.to = "fr";
+    if(!Object.prototype.hasOwnProperty.call(options, "from")) options.from = "auto";
+    if(!Object.prototype.hasOwnProperty.call(options, "to")) options.to = "fr";
     options.raw = Boolean(options.raw);
 
     options.from = languages.getISOCode(options.from);
@@ -61,7 +61,7 @@ async function translate(text, options) {
     let url = `${baseUrl}?${querystring.stringify(data)}`;
 
     let requestOptions;
-    if (url.length > 2048) {
+    if(url.length > 2048){
         delete data.q;
         requestOptions = [
             `${baseUrl}?${querystring.stringify(data)}`,
@@ -73,8 +73,7 @@ async function translate(text, options) {
                 },
             }
         ];
-    }
-    else {
+    }else{
         requestOptions = [ url ];
     }
 
@@ -97,25 +96,24 @@ async function translate(text, options) {
         raw: ""
     };
 
-    if (options.raw) {
+    if(options.raw){
         result.raw = body;
     }
 
     body[0].forEach((obj) => {
-        if (obj[0]) {
+        if(obj[0]){
             result.text += obj[0];
         }
     });
 
-    if (body[2] === body[8][0][0]) {
+    if(body[2] === body[8][0][0]){
         result.from.language.iso = body[2];
-    }
-    else {
+    }else{
         result.from.language.didYouMean = true;
         result.from.language.iso = body[8][0][0];
     }
 
-    if (body[7] && body[7][0]) {
+    if(body[7] && body[7][0]){
         let str = body[7][0];
 
         str = str.replace(/<b><i>/g, "[");
@@ -123,10 +121,9 @@ async function translate(text, options) {
 
         result.from.text.value = str;
 
-        if (body[7][5] === true) {
+        if(body[7][5] === true){
             result.from.text.autoCorrected = true;
-        }
-        else {
+        }else{
             result.from.text.didYouMean = true;
         }
     }
@@ -135,5 +132,46 @@ async function translate(text, options) {
     return result;
 }
 
+/**
+ * @function loadLanguages
+ * @param {Array<String>} languagesToLoad - The list of languages to load in the cache (in ISO 639-1)
+ * @param {Array<String>} wordsToLoad - The list of words/phrases to load for each language
+ * @returns {Promise}
+ */
+async function loadLanguages(languagesToLoad, wordsToLoad){
+    if(!Array.isArray(languagesToLoad) || !Array.isArray(wordsToLoad)){
+      throw new Error('Parameters must be arrays');
+    }
+  
+    const translations = {};
+    let langs = '';
+    for(const lang of languagesToLoad){
+        if(!languages.isSupported(lang)){
+            throw new Error(`Language '${lang}' is not supported`);
+        }
+        langs += `${lang}, `
+        translations[lang] = {};
+    
+        for(const word of wordsToLoad){
+            const cacheKey = `${lang}-auto-${word}`;
+            const cachedResult = cache.get(cacheKey);
+    
+            if(!cachedResult){
+                const result = await translate(word, { to: lang });
+                translations[lang][word] = result.text;
+                cache.set(cacheKey, result);
+            }else{
+                translations[lang][word] = cachedResult.text;
+            }
+        }
+    }
+    
+    langs = langs.slice(0, -2);
+    console.log(`The languages "${langs}" have been loaded successfully.`)
+    return translations;
+}
+  
+
 module.exports = translate;
 module.exports.languages = languages;
+module.exports.loadLanguages = loadLanguages;
