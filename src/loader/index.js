@@ -74,8 +74,9 @@ function buildPaths(basePath, directoryTree) {
  * Load commands from the provided commands folder
  * @param client
  * @param {string} basePath
+ * @param {boolean} [silent=false] - Whether to log the directory tree or not
  */
-function loader(client, basePath) {
+function loader(client, basePath, silent = false) {
     const directoryTree = buildDirectoryTree(basePath);
     const paths = buildPaths(basePath, directoryTree);
 
@@ -89,7 +90,9 @@ function loader(client, basePath) {
         }
     }
 
-    logDirectoryTree(directoryTree);
+    if (!silent) {
+        logDirectoryTree(directoryTree);
+    }
 }
 
 module.exports = loader;
